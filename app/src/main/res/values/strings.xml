@@ -1,1 +1,10 @@
- 
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Hyper Usage Probe</string>
+
+    <string name="xposed_description">
+        小米澎湃 OS 屏幕使用时长数据探针；当前版本只记录，不修改数据
+    </string>
+
+</resources>
