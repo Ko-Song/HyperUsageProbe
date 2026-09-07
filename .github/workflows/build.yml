@@ -21,14 +21,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: build-${{ github.ref }}
+  group: hyper-usage-build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    name: Build debug and release APK
+    name: Build Android APK
     runs-on: ubuntu-latest
-
     timeout-minutes: 30
 
     steps:
@@ -58,28 +57,42 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Show tool versions
+      - name: Validate project structure
         shell: bash
         run: |
-          java -version
-          gradle --version
-          sdkmanager --list_installed
+          set -e
 
-      - name: Validate required Xposed files
-        shell: bash
-        run: |
+          test -f settings.gradle
+          test -f build.gradle
+          test -f gradle.properties
+          test -f app/build.gradle
+          test -f app/src/main/AndroidManifest.xml
           test -f app/src/main/assets/xposed_init
-          grep -F \
+          test -f app/src/main/res/values/arrays.xml
+
+          test -f \
+            app/src/main/java/io/github/kosong/hyperusageprobe/XposedEntry.java
+
+          test -f \
+            app/src/main/java/io/github/kosong/hyperusageprobe/hook/MiSettingsProbe.java
+
+          grep -Fx \
             "io.github.kosong.hyperusageprobe.XposedEntry" \
             app/src/main/assets/xposed_init
 
           grep -F \
-            'android:name="xposedmodule"' \
+            'android:name="xposedminversion"' \
+            app/src/main/AndroidManifest.xml
+
+          grep -F \
+            'android:name="xposedscope"' \
             app/src/main/AndroidManifest.xml
 
           grep -F \
             "com.xiaomi.misettings" \
             app/src/main/res/values/arrays.xml
+
+          echo "Project structure validation passed."
 
       - name: Build debug APK
         shell: bash
@@ -97,11 +110,13 @@ jobs:
             --stacktrace \
             :app:assembleRelease
 
-      - name: List build outputs
+      - name: Show output files
         if: always()
         shell: bash
         run: |
-          find app/build/outputs -type f -maxdepth 8 \
+          find app/build/outputs \
+            -maxdepth 8 \
+            -type f \
             -print 2>/dev/null || true
 
       - name: Upload debug APK
