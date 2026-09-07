@@ -1,1 +1,62 @@
+plugins {
+    id "com.android.application"
+}
 
+android {
+    namespace "io.github.kosong.hyperusageprobe"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "io.github.kosong.hyperusageprobe"
+
+        minSdk 31
+        targetSdk 35
+
+        versionCode 1
+        versionName "0.1.0-probe"
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            shrinkResources false
+        }
+
+        release {
+            minifyEnabled false
+            shrinkResources false
+
+            proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+            )
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
+    packaging {
+        resources {
+            excludes += [
+                    "META-INF/DEPENDENCIES",
+                    "META-INF/LICENSE",
+                    "META-INF/LICENSE.txt",
+                    "META-INF/NOTICE",
+                    "META-INF/NOTICE.txt"
+            ]
+        }
+    }
+}
+
+dependencies {
+    // 只用于编译，不会打包进模块 APK。
+    compileOnly "de.robv.android.xposed:api:82"
+}
