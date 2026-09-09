@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES" />
 
     <application
         android:allowBackup="true"
@@ -13,12 +17,20 @@
             android:exported="true">
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action
+                    android:name="android.intent.action.MAIN" />
+
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Legacy Xposed / LSPosed 模块声明 -->
+        <provider
+            android:name=".log.LogProvider"
+            android:authorities="io.github.kosong.hyperusageprobe.log"
+            android:exported="true"
+            android:grantUriPermissions="false" />
+
         <meta-data
             android:name="xposedmodule"
             android:value="true" />
@@ -31,7 +43,6 @@
             android:name="xposedminversion"
             android:value="82" />
 
-        <!-- 向 LSPosed 提供推荐作用域 -->
         <meta-data
             android:name="xposedscope"
             android:resource="@array/xposed_scope" />
