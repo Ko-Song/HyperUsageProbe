@@ -51,10 +51,8 @@ public final class HookLog {
                         throwable
                 );
 
-        // 兜底写 LSPosed 日志
         XposedBridge.log(line);
 
-        // 尝试写入模块私有日志
         try {
             Context context =
                     ActivityThread.currentApplication();
@@ -80,10 +78,6 @@ public final class HookLog {
                     extras
             );
         } catch (Throwable ignored) {
-            /*
-             * 目标进程限制或 Provider 尚未启动时忽略，
-             * 避免模块本身被杀死。
-             */
         }
     }
 
