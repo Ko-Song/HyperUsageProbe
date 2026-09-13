@@ -14,9 +14,7 @@ public final class LogProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         if (getContext() != null) {
-            LogFileManager.cleanup(
-                    getContext()
-            );
+            LogFileManager.cleanup(getContext());
         }
 
         return true;
@@ -69,9 +67,7 @@ public final class LogProvider extends ContentProvider {
         }
 
         if (LogContract.METHOD_CLEAR.equals(method)) {
-            LogFileManager.clear(
-                    getContext()
-            );
+            LogFileManager.clear(getContext());
 
             Bundle result =
                     new Bundle();
@@ -95,9 +91,7 @@ public final class LogProvider extends ContentProvider {
 
             result.putString(
                     LogContract.KEY_TEXT,
-                    LogFileManager.readAll(
-                            getContext()
-                    )
+                    LogFileManager.readAll(getContext())
             );
 
             return result;
@@ -122,16 +116,9 @@ public final class LogProvider extends ContentProvider {
             return false;
         }
 
-        if (!HookTargets.TARGET_PACKAGE.equals(
+        return HookTargets.TARGET_PACKAGE.equals(
                 packageName
-        )) {
-            return false;
-        }
-
-        int callingUid =
-                Binder.getCallingUid();
-
-        return callingUid != Binder.getUid();
+        );
     }
 
     @Override
