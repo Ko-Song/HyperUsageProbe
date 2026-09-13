@@ -104,9 +104,6 @@ public final class LogFileManager {
                         MAX_FILE_SIZE
                 );
             } catch (Throwable ignored) {
-                /*
-                 * 日志系统不得影响模块自身或目标应用。
-                 */
             }
         }
     }
@@ -135,30 +132,6 @@ public final class LogFileManager {
                     file.delete();
                 }
             }
-        }
-    }
-
-    public static void cleanup(
-            Context context
-    ) {
-        if (context == null) {
-            return;
-        }
-
-        synchronized (LOCK) {
-            SharedPreferences preferences =
-                    context.getSharedPreferences(
-                            ModuleConfig.PREF_NAME,
-                            Context.MODE_PRIVATE
-                    );
-
-            ModuleConfig config =
-                    ModuleConfig.load(preferences);
-
-            cleanupExpired(
-                    getDirectory(context),
-                    config.getLogRetentionDays()
-            );
         }
     }
 
@@ -221,38 +194,6 @@ public final class LogFileManager {
         }
     }
 
-    public static List<File> getFiles(
-            Context context
-    ) {
-        List<File> result =
-                new ArrayList<>();
-
-        if (context == null) {
-            return result;
-        }
-
-        File[] files =
-                getDirectory(context).listFiles();
-
-        if (files == null) {
-            return result;
-        }
-
-        for (File file : files) {
-            if (file.isFile()) {
-                result.add(file);
-            }
-        }
-
-        result.sort(
-                Comparator.comparing(
-                        File::getName
-                )
-        );
-
-        return result;
-    }
-
     private static File getTodayFile(
             File directory
     ) {
@@ -260,15 +201,11 @@ public final class LogFileManager {
                 new SimpleDateFormat(
                         "yyyyMMdd",
                         Locale.US
-                ).format(
-                        new Date()
-                );
+                ).format(new Date());
 
         return new File(
                 directory,
-                FILE_PREFIX
-                        + date
-                        + FILE_SUFFIX
+                FILE_PREFIX + date + FILE_SUFFIX
         );
     }
 
@@ -278,10 +215,7 @@ public final class LogFileManager {
     ) throws Exception {
         try (
                 FileOutputStream output =
-                        new FileOutputStream(
-                                file,
-                                true
-                        );
+                        new FileOutputStream(file, true);
 
                 OutputStreamWriter writer =
                         new OutputStreamWriter(
@@ -317,21 +251,15 @@ public final class LogFileManager {
         ) {
             String line;
 
-            while (
-                    (line = buffered.readLine())
-                            != null
-            ) {
-                result.append(line);
-                result.append('\n');
+            while ((line = buffered.readLine()) != null) {
+                result.append(line).append('\n');
             }
         } catch (Throwable throwable) {
             result.append(
                     "[read failed] "
             ).append(
                     throwable.getClass().getName()
-            ).append(
-                    '\n'
-            );
+            ).append('\n');
         }
     }
 
@@ -377,19 +305,19 @@ public final class LogFileManager {
         }
 
         try {
-            byte[] bytes =
+            byte[] data =
                     readBytes(file);
 
             int keep =
                     (int) Math.min(
                             maxBytes,
-                            bytes.length
+                            data.length
                     );
 
-            int offset =
+            int start =
                     Math.max(
                             0,
-                            bytes.length - keep
+                            data.length - keep
                     );
 
             File temp =
@@ -404,9 +332,9 @@ public final class LogFileManager {
                             new FileOutputStream(temp)
             ) {
                 output.write(
-                        bytes,
-                        offset,
-                        bytes.length - offset
+                        data,
+                        start,
+                        data.length - start
                 );
                 output.flush();
             }
@@ -423,10 +351,8 @@ public final class LogFileManager {
     private static byte[] readBytes(
             File file
     ) throws Exception {
-        try (
-                FileInputStream input =
-                        new FileInputStream(file)
-        ) {
+        try (FileInputStream input =
+                     new FileInputStream(file)) {
             return input.readAllBytes();
         }
     }
